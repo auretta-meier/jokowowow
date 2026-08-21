@@ -166,23 +166,27 @@ export default function App() {
         {/* Messages area (Terminal style) */}
         <div className="flex-grow overflow-y-auto p-12 font-mono text-[13px] leading-relaxed space-y-6">
           <AnimatePresence>
-            {messages.filter(msg => msg.role === 'user').map((msg, idx) => (
+            {messages.map((msg, idx) => (
               <motion.div 
-                key={idx}
+                key={`msg-${idx}`}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex flex-col gap-1 max-w-3xl"
               >
                 <div className="font-bold text-[10px] text-[#555] uppercase tracking-wider mb-1">
-                  USER_INPUT
+                  {msg.role === 'user' ? 'USER_INPUT' : 'SYSTEM_RESPONSE'}
                 </div>
-                <div className="whitespace-pre-wrap text-[#e0e0e0]">
+                <div className={`whitespace-pre-wrap ${msg.role === 'user' ? 'text-[#e0e0e0]' : 'text-[#00ff66]'}`}>
                   {`> ${msg.text}`}
                 </div>
               </motion.div>
             ))}
             
-            {isLoading && <LoadingSequence />}
+            {isLoading && (
+              <motion.div key="loading-seq" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <LoadingSequence />
+              </motion.div>
+            )}
           </AnimatePresence>
           <div ref={receiptEndRef} className="h-4" />
         </div>
