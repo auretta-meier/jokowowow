@@ -189,7 +189,7 @@ export default function App() {
     {/* Physical Print Area (Visible only when printing) */}
     <div className="hidden print:block w-[72mm] mx-auto bg-white text-black font-mono text-[12px] p-0 m-0">
       <div className="whitespace-pre-wrap">
-        {messages.filter(msg => msg.role === 'model').pop()?.text || ""}
+        {isLoading ? "" : (messages.filter(msg => msg.role === 'model').slice(-1)[0]?.text || "")}
       </div>
     </div>
     </>
