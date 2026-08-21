@@ -189,9 +189,8 @@ export default function App() {
     {/* Physical Print Area (Visible only when printing) */}
     <div className="hidden print:block w-[72mm] mx-auto bg-white text-black font-mono text-[12px] p-0 m-0">
       <div className="flex flex-col gap-2">
-        {messages.map((msg, idx) => (
+        {messages.filter(msg => msg.role === 'model').map((msg, idx) => (
           <div key={idx} className="flex flex-col">
-            <div className="font-bold uppercase text-[10px]">{msg.role === 'user' ? 'USER:' : 'AI:'}</div>
             <div className="whitespace-pre-wrap">{msg.text}</div>
           </div>
         ))}
