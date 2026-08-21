@@ -1,0 +1,6 @@
+{
+  "name": "Thermal Chat AI",
+  "description": "A web application that interfaces with Gemini AI and displays responses like a thermal printer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
