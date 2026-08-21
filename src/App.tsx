@@ -188,12 +188,8 @@ export default function App() {
 
     {/* Physical Print Area (Visible only when printing) */}
     <div className="hidden print:block w-[72mm] mx-auto bg-white text-black font-mono text-[12px] p-0 m-0">
-      <div className="flex flex-col gap-2">
-        {messages.filter(msg => msg.role === 'model').map((msg, idx) => (
-          <div key={idx} className="flex flex-col">
-            <div className="whitespace-pre-wrap">{msg.text}</div>
-          </div>
-        ))}
+      <div className="whitespace-pre-wrap">
+        {messages.filter(msg => msg.role === 'model').pop()?.text || ""}
       </div>
     </div>
     </>
