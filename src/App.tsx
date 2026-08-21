@@ -75,8 +75,8 @@ export default function App() {
       {/* Sidebar - System Status & Log */}
       <aside className="hidden md:flex w-[320px] border-r border-[#1a1a1a] flex-col p-8 z-20 bg-[#050505]">
         <div className="mb-12">
-          <h1 className="text-2xl font-light tracking-widest uppercase mb-1">TRANSCRIPT</h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-[#666]">Thermal AI Interface v2.4</p>
+          <h1 className="text-2xl font-light tracking-widest uppercase mb-1">kontolodon</h1>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-[#666]">jali simulator V. 3.6 G - F</p>
         </div>
         
         <div className="flex-grow space-y-8 overflow-y-auto">
