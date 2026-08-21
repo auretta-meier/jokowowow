@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+* {
+  font-family: "Comic Sans MS", "Comic Sans", cursive !important;
+}
+
 .receipt-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -18,4 +22,16 @@
   background-position: left-bottom;
   background-repeat: repeat-x;
   background-size: 8px 8px;
+}
+
+@media print {
+  @page {
+    margin: 0;
+    size: 80mm auto;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: white !important;
+  }
 }

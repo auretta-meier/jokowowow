@@ -11,6 +11,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [autoPrint, setAutoPrint] = useState(false);
   const receiptEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -51,6 +52,9 @@ export default function App() {
 
       const data = await res.json();
       setMessages((prev) => [...prev, { role: "model", text: data.text }]);
+      if (autoPrint) {
+        setTimeout(() => window.print(), 500);
+      }
     } catch (error: any) {
       const errorMsg = error.message || "GAGAL MENCETAK RESPON.";
       setMessages((prev) => [...prev, { role: "model", text: `ERROR:\n${errorMsg}` }]);
@@ -65,7 +69,8 @@ export default function App() {
   });
 
   return (
-    <div className="flex h-screen w-full bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden">
+    <>
+    <div className="flex h-screen w-full bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden print:hidden">
       
       {/* Sidebar - System Status & Log */}
       <aside className="hidden md:flex w-[320px] border-r border-[#1a1a1a] flex-col p-8 z-20 bg-[#050505]">
@@ -102,108 +107,67 @@ export default function App() {
               )}
             </div>
           </div>
+          
+          <div className="mt-6 border-t border-[#1a1a1a] pt-6">
+            <label className="text-[10px] uppercase tracking-widest text-[#444] mb-4 block">Hardware Config</label>
+            <div className="flex items-center justify-between">
+               <span className="text-xs font-mono tracking-tighter">AUTO_PRINT (FISIK)</span>
+               <button 
+                 type="button"
+                 onClick={() => setAutoPrint(!autoPrint)}
+                 className={`w-10 h-5 rounded-full relative transition-colors ${autoPrint ? 'bg-[#00ff66]' : 'bg-[#333]'}`}
+               >
+                  <div className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${autoPrint ? 'right-1' : 'left-1'}`}></div>
+               </button>
+            </div>
+            <p className="text-[9px] text-[#666] mt-2 leading-tight">Browser akan memunculkan dialog print (kertas 80mm) otomatis setiap ada respon baru.</p>
+          </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-grow bg-[#0d0d0d] flex flex-col items-center justify-start pt-12 relative h-screen">
-        <div className="absolute top-0 w-full h-[60px] bg-gradient-to-b from-[#0d0d0d] to-transparent z-20 pointer-events-none"></div>
-        <div className="absolute top-0 right-0 p-12 text-right pointer-events-none hidden lg:block">
-          <div className="text-[60px] font-black opacity-5 select-none">80MM</div>
-          <div className="text-xs font-mono text-[#333]">PRINTER_BUF: {isLoading ? '99%' : '0%'}</div>
-        </div>
-
-        <div className="w-[420px] flex flex-col items-center">
-          {/* Printer Top Hardware */}
-          <div className="w-[440px] h-[30px] bg-[#1a1a1a] rounded-t-lg border-x border-t border-[#333] flex items-center justify-center relative z-20">
-            <div className="w-[380px] h-[4px] bg-[#050505] rounded-full shadow-inner"></div>
-          </div>
-
-          {/* Paper Container */}
-          <div className="w-[380px] bg-[#f9f9f9] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] min-h-[500px] max-h-[65vh] overflow-y-auto receipt-scrollbar relative z-10 flex flex-col">
-            <div className="p-10 flex flex-col gap-4 text-[#111] font-mono text-[13px] leading-relaxed pb-12">
-              
-              {/* Header */}
-              <div className="text-center border-b border-black/10 pb-6 mb-2">
-                <h2 className="text-lg font-bold tracking-tighter uppercase">AI TRANSCRIPT</h2>
-                <p className="text-[10px] tracking-widest">NO. 8829-X / {currentDate.split(" ")[0].replace(/\//g, ".")}</p>
-                <div className="mt-2 text-[10px] flex justify-between">
-                  <span>TIME: {currentDate.split(" ")[1]}</span>
-                  <span>CORE: G-3.6</span>
+      <main className="flex-grow bg-[#050505] flex flex-col relative h-screen">
+        {/* Messages area (Terminal style) */}
+        <div className="flex-grow overflow-y-auto p-12 font-mono text-[13px] leading-relaxed space-y-6">
+          <AnimatePresence>
+            {messages.filter(msg => msg.role === 'user').map((msg, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex flex-col gap-1 max-w-3xl"
+              >
+                <div className="font-bold text-[10px] text-[#555] uppercase tracking-wider mb-1">
+                  USER_INPUT
                 </div>
-              </div>
-
-              {/* Messages */}
-              <div className="flex flex-col gap-6">
-                <AnimatePresence>
-                    {messages.map((msg, idx) => (
-                      <motion.div 
-                        key={idx}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col gap-1"
-                      >
-                        {msg.role === 'user' ? (
-                            <>
-                                <div className="font-bold text-[10px] text-[#555] uppercase tracking-wider mb-1">USER INPUT:</div>
-                                <div className="uppercase break-words">'{msg.text}'</div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="font-bold text-[10px] text-[#555] uppercase tracking-wider mb-1 mt-2">AI RESPONSE:</div>
-                                <div className="whitespace-pre-wrap break-words">{msg.text}</div>
-                                <div className="text-center mt-6 flex justify-center">
-                                  <div className="w-16 h-16 border-[2px] border-black border-dashed flex items-center justify-center opacity-20">
-                                    <span className="text-[8px]">QR AUTH</span>
-                                  </div>
-                                </div>
-                            </>
-                        )}
-                      </motion.div>
-                    ))}
-                    
-                    {isLoading && (
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="flex flex-col gap-1 mt-2"
-                      >
-                        <div className="font-bold text-[10px] text-[#555] uppercase tracking-wider mb-1">SYSTEM:</div>
-                        <div className="animate-pulse">PROCESSING...</div>
-                      </motion.div>
-                    )}
-                </AnimatePresence>
-                <div ref={receiptEndRef} className="h-4" />
-              </div>
-
-            </div>
-          </div>
-          
-          {/* Paper Bottom Edge (Jagged) */}
-          <div className="w-[380px] h-3 bg-[#f9f9f9] receipt-edge z-10 filter drop-shadow-[0_10px_8px_rgba(0,0,0,0.5)]"></div>
-          <div className="text-[10px] text-center opacity-30 mt-4 font-mono tracking-widest hidden md:block">
-             <p>---- END OF TRANSMISSION ----</p>
-             <p className="mt-1">PRINTED BY THERMAL-CORE™</p>
-          </div>
+                <div className="whitespace-pre-wrap text-[#e0e0e0]">
+                  {`> ${msg.text}`}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          <div ref={receiptEndRef} className="h-4" />
         </div>
 
-        {/* Input Area */}
-        <div className="mt-auto mb-8 w-full max-w-[420px] z-30 px-4 pt-8">
-          <div className="bg-[#111] p-2 rounded border border-[#222] shadow-2xl relative">
-            <p className="absolute -top-6 left-1 text-[10px] text-[#555] font-mono uppercase">Command Input</p>
+        {/* Command Input */}
+        <div className="p-8 border-t border-[#1a1a1a] bg-[#050505] z-30">
+          <div className="max-w-3xl w-full">
+            <p className="text-[10px] text-[#555] font-mono uppercase mb-3">Command Input</p>
             <form onSubmit={handleSubmit} className="relative flex items-center">
+              <span className="absolute left-4 text-[#00ff66] font-mono">{'>'}</span>
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={isLoading}
-                placeholder="Ketik pesan untuk mencetak..."
-                className="w-full bg-transparent text-[#e0e0e0] text-xs px-3 py-2 pr-12 focus:outline-none placeholder-[#555] font-sans"
+                placeholder="Ketik pesan untuk instruksi sistem..."
+                className="w-full bg-[#0a0a0a] border border-[#222] rounded text-[#00ff66] font-mono text-[13px] pl-10 pr-12 py-4 focus:outline-none focus:border-[#444] placeholder-[#333] transition-colors shadow-2xl"
+                autoFocus
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="absolute right-1 p-2 text-[#666] hover:text-[#e0e0e0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-4 text-[#555] hover:text-[#00ff66] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Printer className="w-4 h-4" />
               </button>
@@ -212,5 +176,18 @@ export default function App() {
         </div>
       </main>
     </div>
+
+    {/* Physical Print Area (Visible only when printing) */}
+    <div className="hidden print:block w-[72mm] mx-auto bg-white text-black font-mono text-[12px] p-0 m-0">
+      <div className="flex flex-col gap-2">
+        {messages.map((msg, idx) => (
+          <div key={idx} className="flex flex-col">
+            <div className="font-bold uppercase text-[10px]">{msg.role === 'user' ? 'USER:' : 'AI:'}</div>
+            <div className="whitespace-pre-wrap">{msg.text}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+    </>
   );
 }
