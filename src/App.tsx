@@ -7,6 +7,42 @@ type Message = {
   text: string;
 };
 
+const LoadingSequence = () => {
+  const [step, setStep] = useState(0);
+  const steps = [
+    "ESTABLISHING_CONNECTION...",
+    "TRANSMITTING_COMMAND...",
+    "FETCHING_DATA...",
+    "ANALYZING_CONTEXT_WEIGHTS...",
+    "GENERATING_RESPONSE...",
+    "PREPARING_PRINT_SPOOLER..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStep(s => Math.min(s + 1, steps.length - 1));
+    }, 600);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col gap-1 max-w-3xl"
+    >
+       <div className="font-bold text-[10px] text-[#555] uppercase tracking-wider mb-2">SYSTEM_PROCESS</div>
+       <div className="text-[#00ff66] text-xs font-mono flex flex-col gap-1">
+         {steps.slice(0, step + 1).map((s, i) => (
+           <motion.div key={i} initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }}>
+             {`> ${s}`} {i === step && step < steps.length -1 ? <span className="animate-pulse">_</span> : ''}
+           </motion.div>
+         ))}
+       </div>
+    </motion.div>
+  );
+};
+
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -145,6 +181,8 @@ export default function App() {
                 </div>
               </motion.div>
             ))}
+            
+            {isLoading && <LoadingSequence />}
           </AnimatePresence>
           <div ref={receiptEndRef} className="h-4" />
         </div>
