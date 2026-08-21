@@ -11,7 +11,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [autoPrint, setAutoPrint] = useState(false);
+  const [autoPrint, setAutoPrint] = useState(true);
   const receiptEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -151,8 +151,17 @@ export default function App() {
 
         {/* Command Input */}
         <div className="p-8 border-t border-[#1a1a1a] bg-[#050505] z-30">
-          <div className="max-w-3xl w-full">
-            <p className="text-[10px] text-[#555] font-mono uppercase mb-3">Command Input</p>
+          <div className="max-w-3xl w-full flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <p className="text-[10px] text-[#555] font-mono uppercase">Command Input</p>
+              <button 
+                type="button"
+                onClick={() => window.print()}
+                className="text-[10px] text-[#00ff66] border border-[#00ff66] px-2 py-1 rounded hover:bg-[#00ff66] hover:text-black transition-colors"
+              >
+                [ FORCE PRINT ]
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="relative flex items-center">
               <span className="absolute left-4 text-[#00ff66] font-mono">{'>'}</span>
               <input
